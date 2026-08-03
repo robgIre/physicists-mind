@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e1a">
+<title>Physicist's Mind — Think & Talk Like a Masters Grad</title>
+<meta name="description" content="Broad but solid understanding of all of physics — read the big ideas, learn to talk like a physicist, test your recall.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛️</text></svg>">
+<style>
+  :root{
+    --bg:#0b0e1a; --bg2:#11162a; --card:#151b34; --card2:#1b2340;
+    --ink:#e8ecff; --ink2:#9aa6d4; --ink3:#6b7699;
+    --line:#242c4d; --accent:#6ea8ff; --accent2:#b98bff;
+    --ok:#46d39a; --warn:#ffcf6b;
+    --radius:16px; --mw:1180px;
+    font-synthesis:none; -webkit-text-size-adjust:100%;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(1200px 700px at 80% -10%, #1a2140 0, transparent 60%),
+               radial-gradient(1000px 600px at -10% 10%, #191534 0, transparent 55%), var(--bg);
+    color:var(--ink); font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased; padding-bottom:60px;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--mw); margin:0 auto; padding:0 18px}
+
+  header.top{position:sticky; top:0; z-index:40; backdrop-filter:blur(14px);
+    background:linear-gradient(180deg, rgba(11,14,26,.94), rgba(11,14,26,.74)); border-bottom:1px solid var(--line)}
+  .topbar{display:flex; align-items:center; gap:14px; padding:12px 0}
+  .brand{display:flex; align-items:center; gap:11px; min-width:0}
+  .logo{width:40px; height:40px; border-radius:11px; flex:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2)); display:grid; place-items:center; font-size:22px}
+  .brand h1{font-size:16px; margin:0; letter-spacing:.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .brand p{font-size:11.5px; margin:0; color:var(--ink3)}
+  .spacer{flex:1}
+  .ring{position:relative; width:52px; height:52px; flex:none}
+  .ring .pct{position:absolute; inset:0; display:grid; place-items:center; font-size:12.5px; font-weight:700}
+  .iconbtn{background:var(--card); border:1px solid var(--line); color:var(--ink2); width:38px; height:38px;
+    border-radius:10px; cursor:pointer; font-size:16px; display:grid; place-items:center; transition:.15s}
+  .iconbtn:hover{color:var(--ink); border-color:var(--accent)}
+
+  .hero{padding:22px 0 6px}
+  .hero h2{font-size:24px; margin:0 0 6px; letter-spacing:-.4px}
+  .hero .lede{color:var(--ink2); max-width:780px; font-size:14.5px}
+  .planner{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0 4px}
+  .stat{background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line); border-radius:var(--radius); padding:14px 15px}
+  .stat .k{font-size:11px; color:var(--ink3); text-transform:uppercase; letter-spacing:.7px; font-weight:600}
+  .stat .v{font-size:22px; font-weight:750; margin-top:3px}
+  .stat .v small{font-size:12px; color:var(--ink2); font-weight:500}
+  .pacebox{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-top:14px;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+  .pacebox label{font-size:13px; color:var(--ink2); font-weight:600}
+  .pacebox input[type=range]{flex:1; min-width:180px; accent-color:var(--accent)}
+  .paceval{font-weight:750; font-size:14px; min-width:210px; color:var(--ink)}
+
+  .filters{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:24px 0 6px}
+  .chip{background:var(--card); border:1px solid var(--line); color:var(--ink2); padding:6px 12px; border-radius:999px;
+    font-size:12.5px; cursor:pointer; transition:.15s; font-weight:600; white-space:nowrap}
+  .chip:hover{color:var(--ink)}
+  .chip.on{background:var(--accent); color:#08122b; border-color:var(--accent)}
+  .chip .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle}
+
+  .track{margin-top:26px}
+  .trackhead{display:flex; align-items:center; gap:12px; cursor:pointer; padding:8px 0}
+  .trackhead .ic{width:34px; height:34px; border-radius:10px; background:var(--card2); border:1px solid var(--line);
+    display:grid; place-items:center; font-size:17px; flex:none}
+  .trackhead h3{font-size:17px; margin:0}
+  .trackhead .sub{font-size:12px; color:var(--ink3)}
+  .trackhead .tp{margin-left:auto; font-size:12px; color:var(--ink2); font-weight:600}
+  .caret{transition:.2s; color:var(--ink3); font-size:13px}
+  .track.collapsed .caret{transform:rotate(-90deg)}
+  .track.collapsed .modules{display:none}
+  .modules{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:12px}
+
+  .mod{background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line);
+    border-radius:var(--radius); overflow:hidden; transition:.15s; display:flex; flex-direction:column; cursor:pointer}
+  .mod:hover{border-color:#33406f; transform:translateY(-2px)}
+  .mod .mh{padding:15px 16px 14px}
+  .mod .badges{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:9px; align-items:center}
+  .fbadge{font-size:10.5px; font-weight:700; padding:2.5px 8px; border-radius:999px; letter-spacing:.3px; border:1px solid; background:transparent}
+  .doneflag{margin-left:auto; font-size:11px; color:var(--ok); font-weight:700; display:none}
+  .mod.done .doneflag{display:inline}
+  .mod h4{font-size:15.5px; margin:0 0 6px; line-height:1.35}
+  .mod .msum{font-size:13px; color:var(--ink2); margin:0}
+  .mod .meta{display:flex; gap:14px; margin-top:11px; font-size:11.5px; color:var(--ink3); align-items:center; flex-wrap:wrap}
+  .mprog{height:5px; background:#0c1024; border-radius:99px; overflow:hidden; margin-top:12px}
+  .mprog > i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0; transition:width .3s}
+
+  .reader{position:fixed; inset:0; z-index:60; background:rgba(5,7,16,.72); backdrop-filter:blur(6px); display:none; opacity:0; transition:opacity .18s}
+  .reader.open{display:block; opacity:1}
+  .rpanel{position:absolute; top:0; right:0; height:100%; width:min(780px,100%); background:var(--bg2);
+    border-left:1px solid var(--line); overflow-y:auto; transform:translateX(30px); transition:transform .22s; box-shadow:-30px 0 80px rgba(0,0,0,.5)}
+  .reader.open .rpanel{transform:none}
+  .rhead{position:sticky; top:0; z-index:3; background:linear-gradient(180deg,var(--bg2),rgba(17,22,42,.92)); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); padding:16px 22px}
+  .rhead .rtop{display:flex; align-items:center; gap:12px}
+  .rhead h2{font-size:20px; margin:8px 0 6px; line-height:1.3}
+  .rhead .rsub{font-size:12.5px; color:var(--ink3)}
+  .rbadges{display:flex; gap:6px; flex-wrap:wrap; margin-top:2px}
+  .closex{margin-left:auto; background:var(--card); border:1px solid var(--line); color:var(--ink2); width:34px; height:34px; border-radius:9px; cursor:pointer; font-size:17px; flex:none}
+  .closex:hover{color:var(--ink)}
+  .rtabs{display:flex; gap:6px; padding:12px 22px 0; position:sticky; top:78px; background:var(--bg2); z-index:3; flex-wrap:wrap}
+  .rtab{background:transparent; border:1px solid var(--line); color:var(--ink2); padding:6px 12px; border-radius:9px; font-size:12.5px; cursor:pointer; font-weight:650}
+  .rtab.on{background:var(--accent); color:#08122b; border-color:var(--accent)}
+  .rbody{padding:6px 22px 70px}
+  .rpane{display:none; animation:fade .2s}
+  .rpane.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .lesson h3{font-size:16.5px; margin:26px 0 10px; color:var(--accent); letter-spacing:-.2px}
+  .lesson h4{font-size:14.5px; margin:20px 0 7px; color:var(--accent2)}
+  .lesson p{font-size:14.5px; color:#dce2ff; margin:11px 0}
+  .lesson ul,.lesson ol{font-size:14px; color:#d3daff; padding-left:22px}
+  .lesson li{margin:6px 0}
+  .lesson strong{color:#fff}
+  .lesson em{color:var(--warn); font-style:normal; font-weight:600}
+  .eq{background:#0c1126; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; padding:12px 15px; margin:14px 0;
+    font-family:'Cambria Math','Times New Roman',serif; font-size:16px; overflow-x:auto}
+  .eq .why{display:block; font-family:'Inter',sans-serif; font-size:12.5px; color:var(--ink2); margin-top:8px; border-top:1px dashed var(--line); padding-top:8px}
+  .callout{background:linear-gradient(180deg,#161d3d,#141a35); border:1px solid #2b356b; border-radius:12px; padding:13px 16px; margin:16px 0; font-size:13.5px}
+  .callout b{color:var(--accent2)}
+
+  .keyideas{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:15px 16px; margin:22px 0 6px}
+  .keyideas h4{margin:0 0 4px; font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--warn)}
+  .keyideas .hint{font-size:12px; color:var(--ink3); margin:0 0 8px}
+  .idea{display:flex; gap:11px; align-items:flex-start; padding:9px 0; border-top:1px solid var(--line); cursor:pointer}
+  .idea:first-of-type{border-top:none}
+  .idea input{margin-top:3px; accent-color:var(--ok); width:17px; height:17px; flex:none; cursor:pointer}
+  .idea span{font-size:13.5px; color:var(--ink)}
+  .idea.done span{color:var(--ink3)}
+
+  .talkcard{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:15px 16px; margin:14px 0}
+  .talkcard h4{margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--accent)}
+  .oneliner{border-left:3px solid var(--accent2); padding:4px 0 4px 12px; margin:11px 0; font-size:14px; color:#e6ebff}
+  .myth{padding:10px 0; border-top:1px solid var(--line)}
+  .myth:first-of-type{border-top:none}
+  .myth .m{font-size:13.5px; color:#ff9db0}
+  .myth .m::before{content:"✗ "; font-weight:700}
+  .myth .t{font-size:13.5px; color:var(--ok); margin-top:3px}
+  .myth .t::before{content:"✓ "; font-weight:700}
+  .term{padding:9px 0; border-top:1px solid var(--line); font-size:13.5px}
+  .term:first-of-type{border-top:none}
+  .term b{color:var(--accent2)}
+
+  .qa{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 16px; margin:12px 0}
+  .qa .q{padding:13px 0; cursor:pointer; font-size:14px; font-weight:600; display:flex; gap:10px; align-items:flex-start}
+  .qa .q .qi{color:var(--accent); flex:none}
+  .qa .a{font-size:13.5px; color:var(--ink2); padding:0 0 13px 26px; display:none; line-height:1.6}
+  .qa.open .a{display:block}
+  .qa.open .q .qi{transform:rotate(90deg)}
+
+  .res{display:flex; gap:11px; align-items:center; padding:11px 13px; background:var(--card); border:1px solid var(--line); border-radius:11px; margin:9px 0; transition:.15s}
+  .res:hover{border-color:var(--accent)}
+  .res .ri{width:34px; height:34px; border-radius:9px; display:grid; place-items:center; flex:none; font-size:16px; background:var(--card2)}
+  .res .rn{font-size:13.5px; font-weight:650; color:var(--ink)}
+  .res .rd{font-size:11.5px; color:var(--ink3)}
+  .res .rtype{margin-left:auto; font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink3); border:1px solid var(--line); padding:3px 8px; border-radius:99px; flex:none}
+
+  .modal{position:fixed; inset:0; z-index:70; background:rgba(5,7,16,.7); backdrop-filter:blur(6px); display:none; place-items:center; padding:20px}
+  .modal.open{display:grid}
+  .mcard{background:var(--bg2); border:1px solid var(--line); border-radius:18px; padding:22px; max-width:440px; width:100%}
+  .mcard h3{margin:0 0 4px; font-size:18px}
+  .mcard p{color:var(--ink2); font-size:13px; margin:0 0 16px}
+  .btn{background:var(--accent); color:#08122b; border:none; padding:10px 15px; border-radius:10px; font-weight:700; cursor:pointer; font-size:13.5px}
+  .btn.ghost{background:var(--card); color:var(--ink); border:1px solid var(--line)}
+  .btn.danger{background:transparent; color:#ff7b8a; border:1px solid #47263a}
+  .brow{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px}
+  .footer{color:var(--ink3); font-size:12px; text-align:center; margin-top:44px; padding-top:20px; border-top:1px solid var(--line)}
+
+  @media(max-width:760px){
+    .planner{grid-template-columns:repeat(2,1fr)}
+    .modules{grid-template-columns:1fr}
+    .brand p{display:none}
+    .paceval{min-width:0}
+    .rtabs{top:74px}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap topbar">
+    <div class="brand">
+      <div class="logo">⚛️</div>
+      <div>
+        <h1>Physicist's Mind</h1>
+        <p>Think and talk like a masters grad</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="ring" title="How much you've absorbed">
+      <svg width="52" height="52" style="transform:rotate(-90deg)">
+        <circle cx="26" cy="26" r="22" stroke="#242c4d" stroke-width="5" fill="none"/>
+        <circle id="ringfg" cx="26" cy="26" r="22" stroke="url(#g)" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ea8ff"/><stop offset="1" stop-color="#b98bff"/></linearGradient></defs>
+      </svg>
+      <div class="pct" id="ringpct">0%</div>
+    </div>
+    <button class="iconbtn" id="btnSettings" title="Settings, backup and reset">⚙︎</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h2>Broad but solid — the whole of physics, the way a physicist holds it</h2>
+    <p class="lede">Not a degree, a fluency. Every field of physics laid out as a readable lesson built for real understanding: the big ideas, the intuition behind the maths, the landmark results, and how they connect. Each one comes with a <em>Talk like a physicist</em> guide (how to explain it, myths to avoid, the vocabulary) and a <em>Test yourself</em> recall set. Read it, get it, and be able to say it.</p>
+
+    <div class="planner">
+      <div class="stat"><div class="k">Fields covered</div><div class="v" id="sFields">0<small> / 0</small></div></div>
+      <div class="stat"><div class="k">Big ideas absorbed</div><div class="v" id="sIdeas">0<small> / 0</small></div></div>
+      <div class="stat"><div class="k">Reading left</div><div class="v" id="sTime">0<small> min</small></div></div>
+      <div class="stat"><div class="k">Fluency</div><div class="v" id="sFluency">0<small>%</small></div></div>
+    </div>
+
+    <div class="pacebox">
+      <label>Reading pace</label>
+      <input type="range" id="pace" min="15" max="240" step="15" value="45">
+      <span class="paceval" id="paceval">—</span>
+    </div>
+  </section>
+
+  <div class="filters" id="filters"></div>
+  <div id="tracks"></div>
+
+  <div class="footer">
+    A conversational grounding, not a substitute for the maths. When a topic grabs you, follow the <b>Go deeper</b> links into the free Cambridge notes, MIT lectures and Susskind courses that physicists actually learn from.<br>
+    Progress saves on this device only — back it up from the ⚙︎ menu before switching phones.
+  </div>
+</main>
+
+<div class="reader" id="reader">
+  <div class="rpanel">
+    <div class="rhead">
+      <div class="rtop">
+        <div class="rsub" id="rTrack">—</div>
+        <button class="closex" id="rClose">✕</button>
+      </div>
+      <h2 id="rTitle">—</h2>
+      <div class="rbadges" id="rBadges"></div>
+    </div>
+    <div class="rtabs">
+      <button class="rtab on" data-pane="lesson">📖 Lesson</button>
+      <button class="rtab" data-pane="talk">💬 Talk like a physicist</button>
+      <button class="rtab" data-pane="test">🧠 Test yourself</button>
+      <button class="rtab" data-pane="res">🔗 Go deeper</button>
+    </div>
+    <div class="rbody">
+      <div class="rpane on" id="pane-lesson"><div class="lesson" id="lessonBody"></div><div class="keyideas" id="keyideasBox"></div></div>
+      <div class="rpane" id="pane-talk"><div id="talkBody"></div></div>
+      <div class="rpane" id="pane-test"><p style="color:var(--ink2);font-size:13px;margin:6px 0 2px">Answer out loud, then reveal. If you can say it, you can say it at dinner.</p><div id="testBody"></div></div>
+      <div class="rpane" id="pane-res"><div id="resList"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="settings">
+  <div class="mcard">
+    <h3>Settings & backup</h3>
+    <p>Your progress lives in this browser. Export a backup to move it between devices or keep it safe.</p>
+    <div class="brow">
+      <button class="btn" id="btnExport">⬇ Export backup</button>
+      <button class="btn ghost" id="btnImport">⬆ Import backup</button>
+      <input type="file" id="fileImport" accept="application/json" hidden>
+    </div>
+    <div class="brow" style="margin-top:18px">
+      <button class="btn danger" id="btnReset">Reset all progress</button>
+      <button class="btn ghost" id="btnCloseSettings">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="curriculum.js"></script>
+<script src="content-foundations.js"></script>
+<script src="content-relativity.js"></script>
+<script src="content-quantum.js"></script>
+<script src="content-particles.js"></script>
+<script src="app.js"></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
+</body>
+</html>
