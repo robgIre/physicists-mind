@@ -1,5 +1,5 @@
 /* Physicist's Mind — service worker (offline + auto-update) */
-var CACHE = "physmind-v3";
+var CACHE = "physmind-v4";
 var ASSETS = [
   "./", "./index.html",
   "./curriculum.js",
@@ -14,7 +14,11 @@ var ASSETS = [
   "./content-time.js",
   "./content-qg.js",
   "./app.js",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./icon-maskable-512.png",
+  "./apple-touch-icon.png"
 ];
 
 self.addEventListener("install", function (e) {
