@@ -41,8 +41,15 @@ var _byId = {};
 ["sFields", "sIdeas", "sTime", "sFluency", "ringfg", "ringpct", "pace", "paceval", "filters",
  "tracks", "reader", "rClose", "rTrack", "rTitle", "rBadges", "lessonBody", "keyideasBox",
  "talkBody", "testBody", "resList", "btnSettings", "btnCloseSettings", "settings", "btnExport",
- "btnImport", "fileImport", "btnReset", "pane-lesson", "pane-talk", "pane-test", "pane-res"
+ "btnImport", "fileImport", "btnReset", "pane-lesson", "pane-talk", "pane-test", "pane-res",
+ "q", "clearq", "searchwrap", "results", "btnGlossary", "btnCloseGlossary", "glossary", "glossList",
+ "gq", "relatedBox"
 ].forEach(function (id) { _byId[id] = new El("div"); _byId[id].id = id; });
+
+/* JavaScriptCore has no timers; run the callback immediately so debounced
+   handlers are testable. */
+function setTimeout(fn) { fn(); return 0; }
+function clearTimeout() {}
 
 var _rtabs = ["lesson", "talk", "test", "res"].map(function (p) {
   var e = new El("button"); e.className = "rtab"; e.setAttribute("data-pane", p); return e;

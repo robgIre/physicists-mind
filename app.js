@@ -138,6 +138,188 @@
     });
   }
 
+  /* ---------- search index, glossary, related modules ---------- */
+  var STOP = {"the":1,"and":1,"that":1,"this":1,"with":1,"from":1,"what":1,"which":1,"they":1,"their":1,
+    "there":1,"than":1,"then":1,"them":1,"when":1,"where":1,"have":1,"been":1,"were":1,"into":1,"only":1,
+    "also":1,"more":1,"most":1,"some":1,"such":1,"very":1,"just":1,"like":1,"does":1,"about":1,"other":1,
+    "physics":1,"theory":1,"quantum":1};
+
+  function stripTags(s) { return String(s || "").replace(/<[^>]*>/g, " ").replace(/&[a-z]+;|&#\d+;/gi, " "); }
+  function tokens(s) {
+    var out = [], m = String(s || "").toLowerCase().match(/[a-z]{4,}/g) || [];
+    m.forEach(function (w) { if (!STOP[w]) out.push(w); });
+    return out;
+  }
+
+  /* Flat searchable text per module, built once. */
+  var INDEX = MODS.map(function (m) {
+    var t = m.talk || {};
+    var terms = (t.terms || []).map(function (x) { return x.term + " " + x.def; }).join("  ");
+    var tests = (m.test || []).map(function (x) { return x.q + " " + x.a; }).join("  ");
+    return {
+      m: m,
+      title: m.title.toLowerCase(),
+      summary: m.summary.toLowerCase(),
+      ideas: (m.keyIdeas || []).join("  ").toLowerCase(),
+      terms: terms.toLowerCase(),
+      body: (stripTags(m.lesson) + "  " + tests + "  " + (t.oneliners || []).join("  ")).toLowerCase(),
+      plain: (m.summary + "  " + (m.keyIdeas || []).join("  ") + "  " + stripTags(m.lesson)).replace(/\s+/g, " ")
+    };
+  });
+
+  /* Glossary: every vocabulary term across the library, deduped. */
+  var GLOSSARY = (function () {
+    var seen = {}, list = [];
+    MODS.forEach(function (m) {
+      ((m.talk || {}).terms || []).forEach(function (x) {
+        var k = x.term.toLowerCase().replace(/\s*\(.*?\)\s*/g, "").trim();
+        if (seen[k]) { if (seen[k].also.indexOf(m.title) === -1) seen[k].also.push(m.title); return; }
+        seen[k] = { term: x.term, def: x.def, mod: m, also: [] };
+        list.push(seen[k]);
+      });
+    });
+    return list.sort(function (a, b) { return a.term.toLowerCase() < b.term.toLowerCase() ? -1 : 1; });
+  })();
+
+  /* Related modules, computed from shared field tags and shared vocabulary. */
+  var KW = {};
+  MODS.forEach(function (m) {
+    var s = {};
+    (m.fields || []).forEach(function (f) { s["field:" + f] = 3; });
+    ((m.talk || {}).terms || []).forEach(function (x) { tokens(x.term).forEach(function (w) { s[w] = 2; }); });
+    tokens(m.title).forEach(function (w) { s[w] = 2; });
+    KW[m.id] = s;
+  });
+  function relatedFor(m) {
+    var mine = KW[m.id] || {};
+    return MODS.filter(function (o) { return o.id !== m.id; })
+      .map(function (o) {
+        var s = 0, theirs = KW[o.id] || {};
+        for (var k in mine) if (theirs[k]) s += mine[k];
+        return { m: o, s: s };
+      })
+      .filter(function (r) { return r.s >= 6; })
+      .sort(function (a, b) { return b.s - a.s; })
+      .slice(0, 4);
+  }
+
+  function highlight(text, words) {
+    var out = esc(text);
+    words.forEach(function (w) {
+      if (w.length < 2) return;
+      out = out.replace(new RegExp("(" + w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi"), "<mark>$1</mark>");
+    });
+    return out;
+  }
+  function snippet(plain, words) {
+    var lc = plain.toLowerCase(), at = -1;
+    for (var i = 0; i < words.length && at === -1; i++) at = lc.indexOf(words[i]);
+    if (at === -1) at = 0;
+    var from = Math.max(0, at - 80), to = Math.min(plain.length, at + 170);
+    return (from > 0 ? "… " : "") + highlight(plain.slice(from, to), words) + (to < plain.length ? " …" : "");
+  }
+
+  function search(q) {
+    var words = q.toLowerCase().split(/\s+/).filter(function (w) { return w.length > 1; });
+    if (!words.length) return null;
+    var hits = [];
+    INDEX.forEach(function (ix) {
+      var score = 0, all = true;
+      words.forEach(function (w) {
+        var s = 0;
+        if (ix.title.indexOf(w) !== -1) s += 12;
+        if (ix.summary.indexOf(w) !== -1) s += 6;
+        if (ix.terms.indexOf(w) !== -1) s += 5;
+        if (ix.ideas.indexOf(w) !== -1) s += 4;
+        if (ix.body.indexOf(w) !== -1) s += 1;
+        if (!s) all = false; else score += s;
+      });
+      if (all) hits.push({ ix: ix, score: score });
+    });
+    hits.sort(function (a, b) { return b.score - a.score; });
+    var terms = GLOSSARY.filter(function (g) {
+      var t = (g.term + " " + g.def).toLowerCase();
+      return words.every(function (w) { return t.indexOf(w) !== -1; });
+    }).slice(0, 6);
+    return { words: words, hits: hits, terms: terms };
+  }
+
+  function renderResults(q) {
+    var box = $("#results"), tracksEl = $("#tracks"), filters = $("#filters");
+    var wrap = $("#searchwrap");
+    if (q) wrap.classList.add("has"); else wrap.classList.remove("has");
+    var r = q ? search(q) : null;
+    if (!r) { box.innerHTML = ""; tracksEl.style.display = ""; filters.style.display = ""; return; }
+    tracksEl.style.display = "none"; filters.style.display = "none";
+
+    var h = "";
+    if (r.terms.length) {
+      h += '<div class="rescount">' + r.terms.length + ' matching term' + (r.terms.length === 1 ? '' : 's') + '</div>';
+      h += '<div class="talkcard" style="margin-top:0">';
+      r.terms.forEach(function (g, i) {
+        h += '<div class="gitem" data-gid="' + i + '" style="' + (i === 0 ? 'border-top:none' : '') + '">' +
+          '<div class="gterm">' + highlight(g.term, r.words) + '</div>' +
+          '<div class="gdef">' + highlight(g.def, r.words) + '</div>' +
+          '<div class="gsrc">from ' + esc(g.mod.title) + '</div></div>';
+      });
+      h += '</div>';
+    }
+    if (!r.hits.length) {
+      h += '<div class="nores">No lessons match <b>' + esc(q) + '</b>. Try a single word, or a physicist\'s name.</div>';
+    } else {
+      h += '<div class="rescount" style="margin-top:18px">' + r.hits.length + ' lesson' + (r.hits.length === 1 ? '' : 's') + '</div><div class="resgrid">';
+      r.hits.forEach(function (hit) {
+        var m = hit.ix.m;
+        h += '<div class="mod' + (modDone(m) ? " done" : "") + '" data-mid="' + esc(m.id) + '"><div class="mh">' +
+          '<div class="badges">' + m.fields.map(fieldBadge).join("") + '<span class="doneflag">✓ Absorbed</span></div>' +
+          '<h4>' + highlight(m.title, r.words) + '</h4>' +
+          '<p class="msum">' + highlight(m.summary, r.words) + '</p>' +
+          '<div class="snip">' + snippet(hit.ix.plain, r.words) + '</div>' +
+          '<div class="meta"><span>📖 ' + readMins(m) + ' min read</span><span>🧠 ' + m.keyIdeas.length + ' big ideas</span><span>' + modPct(m) + '%</span></div>' +
+          '</div></div>';
+      });
+      h += '</div>';
+    }
+    box.innerHTML = h;
+
+    Array.prototype.forEach.call(box.querySelectorAll(".mod"), function (c) {
+      c.onclick = function () { openById(c.getAttribute("data-mid")); };
+    });
+    Array.prototype.forEach.call(box.querySelectorAll(".gitem"), function (c) {
+      c.onclick = function () { openReader(r.terms[+c.getAttribute("data-gid")].mod); };
+    });
+  }
+
+  function openById(id) {
+    var m = MODS.filter(function (x) { return x.id === id; })[0];
+    if (m) openReader(m);
+  }
+
+  function renderGlossary(filter) {
+    var f = (filter || "").toLowerCase().trim();
+    var list = GLOSSARY.filter(function (g) {
+      return !f || (g.term + " " + g.def).toLowerCase().indexOf(f) !== -1;
+    });
+    var h = "", letter = "";
+    if (!list.length) h = '<div class="nores">Nothing matches that.</div>';
+    list.forEach(function (g, i) {
+      var L = g.term.charAt(0).toUpperCase();
+      if (L !== letter) { letter = L; h += '<div class="galpha">' + esc(letter) + '</div>'; }
+      h += '<div class="gitem" data-gi="' + i + '">' +
+        '<div class="gterm">' + esc(g.term) + '</div>' +
+        '<div class="gdef">' + esc(g.def) + '</div>' +
+        '<div class="gsrc">' + esc(g.mod.title) + (g.also.length ? ' · also in ' + g.also.length + ' more' : '') + '</div></div>';
+    });
+    var box = $("#glossList");
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll(".gitem"), function (c) {
+      c.onclick = function () {
+        $("#glossary").classList.remove("open");
+        openReader(list[+c.getAttribute("data-gi")].mod);
+      };
+    });
+  }
+
   /* ---------- reader ---------- */
   var current = null;
   function openReader(m) {
@@ -148,6 +330,7 @@
     $("#rBadges").innerHTML = m.fields.map(fieldBadge).join("") + '<span class="fbadge" style="color:var(--ink3);border-color:var(--line)">' + readMins(m) + ' min</span>';
     $("#lessonBody").innerHTML = m.lesson;
     renderKeyIdeas(m);
+    renderRelated(m);
     renderTalk(m);
     renderTest(m);
     renderRes(m);
@@ -177,6 +360,22 @@
       });
     });
   }
+  function renderRelated(m) {
+    var box = $("#relatedBox"), rel = relatedFor(m);
+    if (!rel.length) { box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="related"><h4>Where to go next</h4>' +
+      rel.map(function (r) {
+        var tk = TRACKS.filter(function (t) { return t.id === r.m.track; })[0] || {};
+        return '<div class="rel" data-mid="' + esc(r.m.id) + '">' +
+          '<div class="rr">' + (tk.icon || "📄") + '</div>' +
+          '<div><div class="rt">' + esc(r.m.title) + '</div>' +
+          '<div class="rw">' + esc(tk.title || "") + ' · ' + readMins(r.m) + ' min</div></div></div>';
+      }).join("") + '</div>';
+    Array.prototype.forEach.call(box.querySelectorAll(".rel"), function (c) {
+      c.onclick = function () { openById(c.getAttribute("data-mid")); };
+    });
+  }
+
   function renderTalk(m) {
     var t = m.talk || {}, h = "";
     if (t.oneliners && t.oneliners.length) {
@@ -242,6 +441,21 @@
       t.onclick = function () { switchPane(t.getAttribute("data-pane")); };
     });
     $("#pace").addEventListener("input", function () { state.pace = +this.value; save(); renderStats(); });
+
+    var qEl = $("#q"), qTimer = null;
+    qEl.addEventListener("input", function () {
+      var v = this.value;
+      clearTimeout(qTimer);
+      qTimer = setTimeout(function () { renderResults(v.trim()); }, 120);
+    });
+    $("#clearq").onclick = function () { qEl.value = ""; renderResults(""); qEl.focus(); };
+    $("#btnGlossary").onclick = function () {
+      renderGlossary($("#gq").value);
+      $("#glossary").classList.add("open");
+    };
+    $("#btnCloseGlossary").onclick = function () { $("#glossary").classList.remove("open"); };
+    $("#glossary").addEventListener("click", function (e) { if (e.target === $("#glossary")) $("#glossary").classList.remove("open"); });
+    $("#gq").addEventListener("input", function () { renderGlossary(this.value); });
     $("#btnSettings").onclick = function () { $("#settings").classList.add("open"); };
     $("#btnCloseSettings").onclick = function () { $("#settings").classList.remove("open"); };
     $("#settings").addEventListener("click", function (e) { if (e.target === $("#settings")) $("#settings").classList.remove("open"); });
@@ -253,6 +467,16 @@
         state = { absorbed: {}, pace: 45, collapsed: {}, filter: "all" }; save(); boot(); $("#settings").classList.remove("open");
       }
     };
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeReader(); $("#settings").classList.remove("open"); } });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeReader();
+        $("#settings").classList.remove("open");
+        $("#glossary").classList.remove("open");
+      }
+      /* "/" focuses search, the way it works everywhere else */
+      if (e.key === "/" && document.activeElement && document.activeElement.tagName !== "INPUT") {
+        e.preventDefault(); $("#q").focus();
+      }
+    });
   });
 })();

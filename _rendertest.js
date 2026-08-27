@@ -48,6 +48,74 @@
     } catch (e) { out.push("  ! " + m.id + " THREW: " + e); fails++; }
   });
   out.push("modules opened in reader: " + opened + " / " + window.PHYS_MODULES.length);
-  out.push(fails === 0 ? "RENDER TEST PASSED" : "RENDER TEST FAILED (" + fails + " problems)");
+
+  /* --- related modules --- */
+  var noRel = window.PHYS_MODULES.filter(function (m) {
+    var hit = null;
+    tracksEl.children.forEach(function (tw) {
+      tw.children.forEach(function (grid) {
+        (grid.children || []).forEach(function (c) {
+          if (c._html && c._html.indexOf(m.summary.slice(0, 40).replace(/&/g, "&amp;")) !== -1) hit = c;
+        });
+      });
+    });
+    if (!hit) return false;
+    hit.onclick();
+    return !document.querySelector("#relatedBox").innerHTML;
+  });
+  out.push("modules with no related links: " + noRel.length +
+           (noRel.length ? " (" + noRel.map(function (m) { return m.id; }).join(", ") + ")" : ""));
+  if (noRel.length > 3) { out.push("  ! too many modules are orphaned from the cross-link graph"); fails++; }
+
+  /* --- search --- */
+  var qEl = document.querySelector("#q");
+  var inputFns = qEl._listeners["input"] || [];
+  if (!inputFns.length) { out.push("  ! search input has no handler"); fails++; }
+  else {
+    [["hawking", "bh-hawking"], ["entropy", null], ["lorentz", "frames"], ["zzzznotathing", null]]
+      .forEach(function (pair) {
+        qEl.value = pair[0];
+        inputFns[0].call(qEl);
+        var html = document.querySelector("#results").innerHTML;
+        if (pair[0] === "zzzznotathing") {
+          if (html.indexOf("No lessons match") === -1) { out.push("  ! empty search did not show a no-results state"); fails++; }
+          else out.push('search "' + pair[0] + '": correctly reported no matches');
+          return;
+        }
+        var n = (html.match(/class="mod/g) || []).length;
+        if (!n) { out.push('  ! search "' + pair[0] + '" returned nothing'); fails++; return; }
+        if (html.indexOf("<mark>") === -1) { out.push('  ! search "' + pair[0] + '" did not highlight'); fails++; }
+        if (pair[1] && html.indexOf('data-mid="' + pair[1] + '"') === -1) {
+          out.push('  ! search "' + pair[0] + '" missed expected module ' + pair[1]); fails++;
+        }
+        out.push('search "' + pair[0] + '": ' + n + ' lessons' + (pair[1] ? ", found " + pair[1] : ""));
+      });
+    qEl.value = "";
+    inputFns[0].call(qEl);
+    if (document.querySelector("#results").innerHTML !== "") { out.push("  ! clearing search left results behind"); fails++; }
+  }
+
+  /* --- glossary --- */
+  var gBtn = document.querySelector("#btnGlossary");
+  if (typeof gBtn.onclick !== "function") { out.push("  ! glossary button not wired"); fails++; }
+  else {
+    gBtn.onclick();
+    var g = document.querySelector("#glossList").innerHTML;
+    var terms = (g.match(/class="gterm"/g) || []).length;
+    var letters = (g.match(/class="galpha"/g) || []).length;
+    out.push("glossary: " + terms + " unique terms across " + letters + " letters");
+    if (terms < 200) { out.push("  ! glossary looks too small"); fails++; }
+    var gq = document.querySelector("#gq");
+    var gFns = gq._listeners["input"] || [];
+    if (!gFns.length) { out.push("  ! glossary filter not wired"); fails++; }
+    else {
+      gq.value = "horizon"; gFns[0].call(gq);
+      var filtered = (document.querySelector("#glossList").innerHTML.match(/class="gterm"/g) || []).length;
+      out.push('glossary filter "horizon": ' + filtered + " terms");
+      if (!filtered) { out.push("  ! glossary filter returned nothing for a term that should exist"); fails++; }
+    }
+  }
+
+  out.push(fails === 0 ? "ALL TESTS PASSED" : "TESTS FAILED (" + fails + " problems)");
   console.log(out.join("\n"));
 })();

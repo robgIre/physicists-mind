@@ -172,7 +172,49 @@
   .brow{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px}
   .footer{color:var(--ink3); font-size:12px; text-align:center; margin-top:44px; padding-top:20px; border-top:1px solid var(--line)}
 
+  /* ---- search, glossary, related ---- */
+  .searchrow{display:flex; gap:10px; margin-top:14px; align-items:stretch; flex-wrap:wrap}
+  .searchwrap{flex:1; min-width:220px; position:relative; display:flex; align-items:center}
+  .searchwrap .mag{position:absolute; left:13px; font-size:14px; color:var(--ink3); pointer-events:none}
+  #q{width:100%; background:var(--card); border:1px solid var(--line); color:var(--ink); border-radius:var(--radius);
+     padding:12px 38px 12px 36px; font-size:14px; font-family:inherit; outline:none}
+  #q:focus{border-color:var(--accent)}
+  #q::placeholder{color:var(--ink3)}
+  .clearq{position:absolute; right:10px; background:none; border:none; color:var(--ink3); cursor:pointer; font-size:15px; display:none}
+  .searchwrap.has .clearq{display:block}
+  .clearq:hover{color:var(--ink)}
+
+  .results{margin-top:18px}
+  .rescount{font-size:12.5px; color:var(--ink3); margin:0 0 10px; font-weight:600}
+  .resgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+  .snip{font-size:12.5px; color:var(--ink3); margin-top:9px; line-height:1.55}
+  .snip mark, .gdef mark, .msum mark{background:rgba(110,168,255,.22); color:#fff; border-radius:3px; padding:0 2px}
+  .nores{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px; text-align:center; color:var(--ink2); font-size:14px}
+
+  .gcard{max-width:640px; max-height:82vh; display:flex; flex-direction:column}
+  #gq{width:100%; background:var(--card); border:1px solid var(--line); color:var(--ink); border-radius:11px;
+      padding:10px 13px; font-size:13.5px; font-family:inherit; outline:none; margin-bottom:6px}
+  #gq:focus{border-color:var(--accent)}
+  .glosslist{overflow-y:auto; flex:1; margin:10px -4px 4px; padding:0 4px}
+  .galpha{font-size:11px; font-weight:800; color:var(--warn); letter-spacing:1px; margin:14px 0 4px; text-transform:uppercase}
+  .galpha:first-child{margin-top:0}
+  .gitem{padding:9px 0; border-top:1px solid var(--line); cursor:pointer}
+  .gitem:hover .gterm{color:var(--accent)}
+  .gterm{font-size:13.5px; font-weight:700; color:var(--accent2)}
+  .gdef{font-size:12.5px; color:var(--ink2); margin-top:2px}
+  .gsrc{font-size:11px; color:var(--ink3); margin-top:3px}
+
+  .related{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:15px 16px; margin:16px 0 6px}
+  .related h4{margin:0 0 9px; font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--accent)}
+  .rel{display:flex; gap:10px; align-items:center; padding:9px 0; border-top:1px solid var(--line); cursor:pointer}
+  .rel:first-of-type{border-top:none}
+  .rel:hover .rt{color:var(--accent)}
+  .rel .rr{font-size:15px; flex:none; width:26px; text-align:center}
+  .rt{font-size:13.5px; font-weight:650; color:var(--ink)}
+  .rw{font-size:11.5px; color:var(--ink3)}
+
   @media(max-width:760px){
+    .resgrid{grid-template-columns:1fr}
     .planner{grid-template-columns:repeat(2,1fr)}
     .modules{grid-template-columns:1fr}
     .brand p{display:none}
@@ -221,9 +263,19 @@
       <input type="range" id="pace" min="15" max="240" step="15" value="45">
       <span class="paceval" id="paceval">—</span>
     </div>
+    <div class="searchrow">
+      <div class="searchwrap" id="searchwrap">
+        <span class="mag">🔍</span>
+        <input type="search" id="q" autocomplete="off" spellcheck="false"
+               placeholder="Search every lesson, big idea and bit of vocabulary…">
+        <button class="clearq" id="clearq" title="Clear search">✕</button>
+      </div>
+      <button class="btn ghost" id="btnGlossary">📖 Glossary</button>
+    </div>
   </section>
 
   <div class="filters" id="filters"></div>
+  <div class="results" id="results"></div>
   <div id="tracks"></div>
 
   <div class="footer">
@@ -249,11 +301,21 @@
       <button class="rtab" data-pane="res">🔗 Go deeper</button>
     </div>
     <div class="rbody">
-      <div class="rpane on" id="pane-lesson"><div class="lesson" id="lessonBody"></div><div class="keyideas" id="keyideasBox"></div></div>
+      <div class="rpane on" id="pane-lesson"><div class="lesson" id="lessonBody"></div><div class="keyideas" id="keyideasBox"></div><div id="relatedBox"></div></div>
       <div class="rpane" id="pane-talk"><div id="talkBody"></div></div>
       <div class="rpane" id="pane-test"><p style="color:var(--ink2);font-size:13px;margin:6px 0 2px">Answer out loud, then reveal. If you can say it, you can say it at dinner.</p><div id="testBody"></div></div>
       <div class="rpane" id="pane-res"><div id="resList"></div></div>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="glossary">
+  <div class="mcard gcard">
+    <h3>Glossary</h3>
+    <p>Every term defined across the whole library. Tap one to jump to the lesson it comes from.</p>
+    <input type="search" id="gq" autocomplete="off" spellcheck="false" placeholder="Filter terms…">
+    <div class="glosslist" id="glossList"></div>
+    <div class="brow" style="margin-top:14px"><button class="btn ghost" id="btnCloseGlossary">Close</button></div>
   </div>
 </div>
 
