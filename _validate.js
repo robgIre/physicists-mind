@@ -30,8 +30,8 @@
       var words = m.lesson.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
       if (words < 900) warns.push(tag + " lesson short: " + words + " words");
       if (words > 2400) warns.push(tag + " lesson long: " + words + " words");
-      var open = (m.lesson.match(/<(h3|h4|p|div|span|ul|ol|li|strong|em|b)\b/g) || []).length;
-      var close = (m.lesson.match(/<\/(h3|h4|p|div|span|ul|ol|li|strong|em|b)>/g) || []).length;
+      var open = (m.lesson.match(/<(h3|h4|p|div|span|ul|ol|li|strong|em|b|sub|sup)\b/g) || []).length;
+      var close = (m.lesson.match(/<\/(h3|h4|p|div|span|ul|ol|li|strong|em|b|sub|sup)>/g) || []).length;
       if (open !== close) errs.push(tag + " unbalanced tags: " + open + " open vs " + close + " close");
       var eqOpen = (m.lesson.match(/<div class="eq">/g) || []).length;
       var whys = (m.lesson.match(/<span class="why">/g) || []).length;

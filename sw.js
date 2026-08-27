@@ -1,13 +1,14 @@
 /* Physicist's Mind — service worker (offline + auto-update) */
-var CACHE = "physmind-v2";
+var CACHE = "physmind-v3";
 var ASSETS = [
   "./", "./index.html",
   "./curriculum.js",
-  "./content-foundations.js",
-  "./content-relativity.js",
-  "./content-quantum.js",
-  "./content-particles.js",
+  "./content-core.js",
   "./content-gaps.js",
+  "./content-methods.js",
+  "./content-quantum-toolkit.js",
+  "./content-matter.js",
+  "./content-practice.js",
   "./content-nobel.js",
   "./content-blackholes.js",
   "./content-time.js",
