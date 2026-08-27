@@ -1,5 +1,5 @@
 /* Physicist's Mind — service worker (offline + auto-update) */
-var CACHE = "physmind-v1";
+var CACHE = "physmind-v2";
 var ASSETS = [
   "./", "./index.html",
   "./curriculum.js",
@@ -7,6 +7,11 @@ var ASSETS = [
   "./content-relativity.js",
   "./content-quantum.js",
   "./content-particles.js",
+  "./content-gaps.js",
+  "./content-nobel.js",
+  "./content-blackholes.js",
+  "./content-time.js",
+  "./content-qg.js",
   "./app.js",
   "./manifest.webmanifest"
 ];

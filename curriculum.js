@@ -14,6 +14,11 @@ window.PHYS_FIELDS = {
   quantum:     { name: "Quantum",        color: "#b98bff" },
   qft:         { name: "Quantum Fields", color: "#8aa0ff" },
   particle:    { name: "Particle Physics",color:"#ffd166" },
+  condensed:   { name: "Condensed Matter",color:"#5ee0c0" },
+  gravitation: { name: "Gravitation",    color: "#a8c8ff" },
+  information: { name: "Information",    color: "#ff9ee0" },
+  philosophy:  { name: "Foundations",    color: "#a3e635" },
+  breakthroughs:{name: "Breakthroughs",  color: "#f5c26b" },
   frontiers:   { name: "Frontiers",      color: "#c0a3ff" }
 };
 
@@ -25,7 +30,15 @@ window.PHYS_TRACKS = [
   { id: "quantum", icon: "⚛️", title: "The quantum world",
     sub: "The strange rules of the very small, and the fields beneath everything" },
   { id: "particles", icon: "🔬", title: "Particles, forces & frontiers",
-    sub: "What everything is made of, and the questions still open" }
+    sub: "What everything is made of, and the questions still open" },
+  { id: "nobel", icon: "🏅", title: "The breakthroughs that changed everything",
+    sub: "The Nobel-winning results, told as arguments rather than trivia" },
+  { id: "blackholes", icon: "🕳️", title: "Black holes, horizons & information",
+    sub: "Schwarzschild to Hawking to the paradox that still isn't settled" },
+  { id: "time", icon: "⏳", title: "Time, cause & the arrow",
+    sub: "Why effect never precedes cause, and where that asymmetry comes from" },
+  { id: "qg", icon: "🧵", title: "Strings, quantum gravity & the frontier",
+    sub: "The candidates for the final theory, and an honest scoreboard" }
 ];
 
 window.PHYS_MODULES = [];

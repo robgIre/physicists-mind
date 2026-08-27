@@ -22,6 +22,15 @@
     state.absorbed[id] = arr; save();
   }
   function modPct(m) { return m.keyIdeas.length ? Math.round(ticks(m.id).length / m.keyIdeas.length * 100) : 0; }
+  /* Reading time is measured from the actual lesson, not hand-typed, so the
+     planner tells the truth. 160 wpm allows for equations and re-reading. */
+  function readMins(m) {
+    if (m._rm == null) {
+      var w = String(m.lesson || "").replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
+      m._rm = Math.max(2, Math.round(w / 160));
+    }
+    return m._rm;
+  }
   function modDone(m) { return m.keyIdeas.length > 0 && ticks(m.id).length >= m.keyIdeas.length; }
 
   /* ---------- helpers ---------- */
@@ -39,7 +48,7 @@
     MODS.forEach(function (m) {
       ideas += m.keyIdeas.length;
       done += Math.min(ticks(m.id).length, m.keyIdeas.length);
-      if (modDone(m)) modsDone++; else timeLeft += (m.readMins || 0);
+      if (modDone(m)) modsDone++; else timeLeft += readMins(m);
     });
     return { ideas: ideas, done: done, modsDone: modsDone, timeLeft: timeLeft, total: MODS.length };
   }
@@ -102,7 +111,7 @@
         '<div class="badges">' + badges + '<span class="doneflag">✓ Absorbed</span></div>' +
         '<h4>' + esc(m.title) + '</h4>' +
         '<p class="msum">' + esc(m.summary) + '</p>' +
-        '<div class="meta"><span>📖 ' + (m.readMins || 0) + ' min read</span><span>🧠 ' + m.keyIdeas.length + ' big ideas</span><span>' + modPct(m) + '%</span></div>' +
+        '<div class="meta"><span>📖 ' + readMins(m) + ' min read</span><span>🧠 ' + m.keyIdeas.length + ' big ideas</span><span>' + modPct(m) + '%</span></div>' +
         '<div class="mprog"><i style="width:' + modPct(m) + '%"></i></div>' +
       '</div>';
     c.onclick = function () { openReader(m); };
@@ -136,7 +145,7 @@
     var tk = TRACKS.filter(function (t) { return t.id === m.track; })[0] || {};
     $("#rTrack").textContent = (tk.icon || "") + " " + (tk.title || "");
     $("#rTitle").textContent = m.title;
-    $("#rBadges").innerHTML = m.fields.map(fieldBadge).join("") + '<span class="fbadge" style="color:var(--ink3);border-color:var(--line)">' + (m.readMins || 0) + ' min</span>';
+    $("#rBadges").innerHTML = m.fields.map(fieldBadge).join("") + '<span class="fbadge" style="color:var(--ink3);border-color:var(--line)">' + readMins(m) + ' min</span>';
     $("#lessonBody").innerHTML = m.lesson;
     renderKeyIdeas(m);
     renderTalk(m);

@@ -80,7 +80,7 @@ addModule({
 });
 
 addModule({
-  id: "qft", track: "quantum", order: 2,
+  id: "qft", track: "quantum", order: 3,
   title: "Quantum field theory",
   fields: ["qft","quantum"], readMins: 28,
   summary: "The deepest layer of reality we know: not particles, but quantum fields filling all space. Particles are just their ripples.",
